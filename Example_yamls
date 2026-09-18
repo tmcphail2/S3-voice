@@ -160,17 +160,6 @@ Data/Command (DC/RS): GPIO45
 Reset (RST): GPIO21
 Backlight: GPIO3
 
-Legacy Driver Alternative
-If you are running an older ESPHome environment that does not recognize mipi_spi,
-replace the display section with the legacy driver:yamldisplay:
-  - platform: st7789v
-    model: Custom
-    width: 135
-    height: 240
-    offset_width: 52
-    offset_height: 40
-    # Use identical pin configurations as shown above
-
 
 spi:
   clk_pin: GPIO40
@@ -192,3 +181,17 @@ display:
     lambda: |-
       it.fill(Color::BLACK);
       it.print(10, 10, id(font_default), Color::WHITE, "M5StickS3 Ready");
+
+
+Legacy Driver Alternative
+If you are running an older ESPHome environment that does not recognize mipi_spi,
+replace the display section with the legacy driver:yamldisplay:
+  - platform: st7789v
+    model: Custom
+    width: 135
+    height: 240
+    offset_width: 52
+    offset_height: 40
+    # Use identical pin configurations as shown above
+
+
