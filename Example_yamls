@@ -1,0 +1,40 @@
+#from gemini for display
+esp32:
+  board: esp32-s3-devkitc-1
+  framework:
+    type: esp-idf
+
+# SPI Bus configuration for M5StickS3 display
+spi:
+  - id: tft_spi
+    clk_pin: GPIO13   # Verify against your specific schematic pinout if necessary
+    mosi_pin: GPIO15
+    miso_pin: GPIO3   # Adjust if unused/needed
+
+display:
+  - platform: ili9xxx
+    model: st7789v
+    din_pin: GPIO15
+    clk_pin: GPIO13
+    cs_pin: GPIO5
+    dc_pin: GPIO23
+    reset_pin: GPIO18
+    # M5StickS3 1.14 inch screen resolution settings
+    dimensions:
+      width: 135
+      height: 240
+    invert_colors: true
+    lambda: |-
+      it.print(0, 0, id(my_font), "Hello M5StickS3!");
+      it.printf(0, 30, id(my_font), "WiFi: %.0f dBm", id(wifi_signal).state);
+
+font:
+  - file: "gfont://Roboto"
+    id: my_font
+    size: 18
+
+sensor:
+  - platform: wifi_signal
+    id: wifi_signal
+    name: "WiFi Signal"
+    update_interval: 60s
