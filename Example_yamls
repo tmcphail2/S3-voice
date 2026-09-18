@@ -131,5 +131,16 @@ font:
   - file: "gcode://Roboto-Regular.ttf" # or your chosen TrueType font file local/URL path
     id: font_default
     size: 16
-Use code with caution.Key Hardware Pin Mapping BreakdownsSPI Clock (clk_pin): GPIO17SPI MOSI (mosi_pin): GPIO21Chip Select (cs_pin): GPIO15Data/Command (dc_pin): GPIO33Reset (reset_pin): GPIO34Backlight Control (pin): GPIO16Would you like assistance setting up other onboard M5Stick S3 hardware elements alongside this display config? Let me know if you want to include YAML blocks for:The BMI270 IMU/Gyroscope sensorThe Front / Side hardware buttonsThe ES8311 Audio / Speaker codec system
+
+Use code with caution.
+Key Hardware Pin Mapping Breakdowns
+!!! these seem wrong for stick s3 !!!
+SPI Clock (clk_pin): GPIO17
+SPI MOSI (mosi_pin): GPIO21
+Chip Select (cs_pin): GPIO15
+Data/Command (dc_pin): GPIO33
+Reset (reset_pin): GPIO34
+Backlight Control (pin): GPIO16
+
+Would you like assistance setting up other onboard M5Stick S3 hardware elements alongside this display config? Let me know if you want to include YAML blocks for:The BMI270 IMU/Gyroscope sensorThe Front / Side hardware buttonsThe ES8311 Audio / Speaker codec system
 
