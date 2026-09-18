@@ -11,6 +11,7 @@ spi:
     mosi_pin: GPIO15
     miso_pin: GPIO3   # Adjust if unused/needed
 
+# esphome syntax balks about pins
 display:
   - platform: ili9xxx
     model: st7789v
