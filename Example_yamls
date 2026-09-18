@@ -144,6 +144,34 @@ Backlight Control (pin): GPIO16
 
 Would you like assistance setting up other onboard M5Stick S3 hardware elements alongside this display config? Let me know if you want to include YAML blocks for:The BMI270 IMU/Gyroscope sensorThe Front / Side hardware buttonsThe ES8311 Audio / Speaker codec system
 
+ ----
+AI Overview       
+To configure the ST7789P3 display on your M5StickS3 using ESPHome,
+use the following block configuration. Modern versions of ESPHome 
+recommend the mipi_spi platform for ST7789 drivers.
+
+Pin Mapping Reference
+The exact hardware pinouts required to map the display signals to the 
+onboard ESP32-S3 are:
+SPI Clock (SCK): GPIO40
+SPI Data (MOSI): GPIO39
+Chip Select (CS): GPIO41
+Data/Command (DC/RS): GPIO45
+Reset (RST): GPIO21
+Backlight: GPIO3
+
+Legacy Driver Alternative
+If you are running an older ESPHome environment that does not recognize mipi_spi,
+replace the display section with the legacy driver:yamldisplay:
+  - platform: st7789v
+    model: Custom
+    width: 135
+    height: 240
+    offset_width: 52
+    offset_height: 40
+    # Use identical pin configurations as shown above
+
+
 spi:
   clk_pin: GPIO40
   mosi_pin: GPIO39
