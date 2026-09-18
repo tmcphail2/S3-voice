@@ -39,3 +39,97 @@ sensor:
     id: wifi_signal
     name: "WiFi Signal"
     update_interval: 60s
+
+
+---
+# google search
+https://community.home-assistant.io/t/a-little-help-with-st7789v-running-on-octal-spi/897876/2
+display:
+  - platform: mipi_spi
+    id: my_display
+    model: ST7789V
+    spi_id: spi_bus0
+    cs_pin: GPIO17
+    dc_pin: GPIO16
+    reset_pin: GPIO2
+    dimensions:
+      width: 240
+      height: 320
+    rotation: 0
+    lambda: |-
+      it.fill(Color::BLACK);
+      it.print(10, 10, id(my_font), "Hello ESPHome!");
+
+
+---
+AI Overview        
+To configure the ST7789P3 1.14" 135x240 LCD display on your M5Stick S3 using ESPHome, 
+you can use either the modern mipi_spi platform (recommended) or the older ili9xxx platform.
+Since the ST7789P3 requires custom offsets and color-inversion rules, the configuration below 
+uses standard esp-idf and the optimized SPI settings for the M5Stack S3 pin layout.
+ESPHome Configuration YAML
+
+esphome:
+  name: m5stick-s3
+  friendly_name: M5Stick S3
+
+esp32:
+  board: esp32-s3-devkitc-1
+  framework:
+    type: esp-idf
+
+# Configure the SPI bus matching the M5Stick S3 internal screen pins
+spi:
+  clk_pin: GPIO17
+  mosi_pin: GPIO21
+
+# Setup backlight control 
+output:
+  - platform: ledc
+    pin: GPIO16
+    id: backlight_pwm
+
+light:
+  - platform: monochromatic
+    output: backlight_pwm
+    name: "Display Backlight"
+    id: display_backlight
+    restore_mode: ALWAYS_ON
+
+# Display Configuration
+display:
+  - platform: ili9xxx
+    model: st7789v
+    id: m5_display
+    cs_pin: GPIO15
+    dc_pin: GPIO33
+    reset_pin: GPIO34
+    
+    # Physical screen boundaries & offsets for the 1.14" 135x240 panel
+    dimensions:
+      height: 240
+      width: 135
+      offset_height: 40
+      offset_width: 52
+      
+    # Matching the screen layout orientation (Adjust swap/mirror to taste)
+    transform:
+      swap_xy: false
+      mirror_x: false
+      mirror_y: false
+      
+    invert_colors: true
+    data_rate: 40MHz
+    
+    # Optional rendering lambda block
+    lambda: |-
+      it.fill(Color::BLACK);
+      it.print(it.get_width() / 2, it.get_height() / 2, id(font_default), Color::WHITE, TextAlign::CENTER, "M5Stick S3");
+
+# Minimal font component required to display text in the lambda
+font:
+  - file: "gcode://Roboto-Regular.ttf" # or your chosen TrueType font file local/URL path
+    id: font_default
+    size: 16
+Use code with caution.Key Hardware Pin Mapping BreakdownsSPI Clock (clk_pin): GPIO17SPI MOSI (mosi_pin): GPIO21Chip Select (cs_pin): GPIO15Data/Command (dc_pin): GPIO33Reset (reset_pin): GPIO34Backlight Control (pin): GPIO16Would you like assistance setting up other onboard M5Stick S3 hardware elements alongside this display config? Let me know if you want to include YAML blocks for:The BMI270 IMU/Gyroscope sensorThe Front / Side hardware buttonsThe ES8311 Audio / Speaker codec system
+
