@@ -144,3 +144,23 @@ Backlight Control (pin): GPIO16
 
 Would you like assistance setting up other onboard M5Stick S3 hardware elements alongside this display config? Let me know if you want to include YAML blocks for:The BMI270 IMU/Gyroscope sensorThe Front / Side hardware buttonsThe ES8311 Audio / Speaker codec system
 
+spi:
+  clk_pin: GPIO40
+  mosi_pin: GPIO39
+
+display:
+  - platform: mipi_spi
+    model: ST7789V
+    id: m5stick_display
+    width: 135
+    height: 240
+    offset_width: 52   # Adjust if your image shifts or shows a static edge
+    offset_height: 40  # Adjust if your image shifts or shows a static edge
+    cs_pin: GPIO41
+    dc_pin: GPIO45
+    reset_pin: GPIO21
+    backlight_pin: GPIO38
+    rotation: 90
+    lambda: |-
+      it.fill(Color::BLACK);
+      it.print(10, 10, id(font_default), Color::WHITE, "M5StickS3 Ready");
