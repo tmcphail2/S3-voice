@@ -249,3 +249,64 @@ light:
     name: "Display Backlight"
     restore_mode: ALWAYS_ON
 
+
+---
+also gemini pro
+esphome:
+  name: m5sticks3-hello-world
+  friendly_name: M5StickS3
+
+esp32:
+  board: esp32-s3-devkitc-1
+  variant: esp32s3
+  framework:
+    type: arduino
+
+# Force serial logging over the S3's native USB port
+logger:
+  hardware_uart: USB_SERIAL_JTAG
+
+api:
+ota:
+
+wifi:
+  ssid: "YOUR_WIFI_SSID"
+  password: "YOUR_WIFI_PASSWORD"
+  ap:
+    ssid: "M5StickS3 Hotspot"
+    password: "fallbackpassword"
+
+# ESPHome will automatically download this Google Font during compilation
+font:
+  - file: "gfonts://Roboto"
+    id: roboto_font
+    size: 28
+
+# SPI Bus mapping (Defaults based on the M5Stick architecture)
+spi:
+  clk_pin: GPIO13
+  mosi_pin: GPIO15
+
+# ST7789v LCD Screen Configuration
+display:
+  - platform: st7789v
+    id: s3_screen
+    cs_pin: GPIO5
+    dc_pin: GPIO14
+    reset_pin: GPIO12
+    backlight_pin: GPIO27
+    width: 135
+    height: 240
+    # 90 or 270 for landscape formatting
+    rotation: 90 
+    
+    # The lambda function runs continuously to draw on the display
+    lambda: |-
+      it.print(
+        it.get_width() / 2,     // Center X coordinate
+        it.get_height() / 2,    // Center Y coordinate
+        id(roboto_font),        // Font ID defined above
+        TextAlign::CENTER,      // Hardware-level alignment
+        "Hello World!"          // Display text
+      );
+
