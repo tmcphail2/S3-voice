@@ -194,4 +194,58 @@ replace the display section with the legacy driver:yamldisplay:
     offset_height: 40
     # Use identical pin configurations as shown above
 
+---
+gemini pro
+esphome:
+  name: m5-stick-s3
+  friendly_name: M5 Stick S3
+
+esp32:
+  board: esp32-s3-devkitc-1
+  variant: ESP32S3
+
+# Enable logging and API
+logger:
+api:
+ota:
+
+wifi:
+  ssid: "YOUR_WIFI_SSID"
+  password: "YOUR_WIFI_PASSWORD"
+
+# Define the font used for the Hello World text
+font:
+  - file: "gfonts://Roboto"
+    id: my_font
+    size: 24
+
+# SPI bus configuration for the display
+spi:
+  clk_pin: GPIO21  # Change to your specific board's SCK/CLK pin
+  mosi_pin: GPIO17 # Change to your specific board's MOSI/SDA pin
+
+# Display configuration
+display:
+  - platform: st7789
+    cs_pin: GPIO15    # Change to your specific board's CS pin
+    dc_pin: GPIO33    # Change to your specific board's DC pin
+    reset_pin: GPIO34 # Change to your specific board's RST pin
+    # Adjust width and height based on your specific screen size
+    width: 135
+    height: 240
+    lambda: |-
+      // Print "Hello World!" perfectly centered on the screen
+      it.print(it.get_width() / 2, it.get_height() / 2, id(my_font), TextAlign::CENTER, "Hello World!");
+
+# (Optional) Backlight control - remove if your board doesn't have a backlight pin
+output:
+  - platform: ledc
+    pin: GPIO16 # Change to your specific board's BL/Backlight pin
+    id: backlight_pwm
+
+light:
+  - platform: monochromatic
+    output: backlight_pwm
+    name: "Display Backlight"
+    restore_mode: ALWAYS_ON
 
