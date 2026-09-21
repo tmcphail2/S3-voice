@@ -440,3 +440,212 @@ microphone:
     adc_type: external
     pdm: true
     id: mic
+
+---
+https://github.com/ccsmart/M5SS3-esphome/blob/main/m5ss3-hw.yaml
+M5SS3 with power management def
+esphome:
+  name: ${devicename}
+  friendly_name: ${upper_devicename}
+  on_boot:
+    - priority: 300
+      then:
+        lambda: |-
+          id(m5pm1_id).set_standby(false);
+
+
+esp32:
+  board: esp32-s3-devkitc-1
+  variant: esp32s3
+  #flash_size: 8MB
+  framework:
+    type: esp-idf
+    advanced:
+      execute_from_psram: true
+
+
+psram:
+  mode: octal
+  ignore_not_found: false
+
+
+external_components:
+  - source: components
+
+
+# M5PM1
+m5pm1:
+  id: m5pm1_id
+  i2c_id: i2c_internal
+  address: 0x6E
+  update_interval: 30s
+  battery_voltage:
+    id: m5pm1_battery_volt
+    name: "M5PM1 Battery Voltage"
+  on_battery:
+    id: m5pm1_onbattery
+    name: "M5PM1 On Battery"
+  on_usb:
+    id: m5pm1_onusb
+    name: "M5PM1 On USB"
+
+
+time:
+  - platform: homeassistant
+    id: ha_time
+    update_interval: 1h
+    on_time:
+      - seconds: /1
+        then:
+          - component.update: lcd_display
+
+
+i2c:
+  - id: i2c_internal
+    sda: GPIO47
+    scl: GPIO48
+    scan: true
+    frequency: 100kHz
+    timeout: 5ms
+
+
+spi:
+  - id: lcd_spi
+    clk_pin: GPIO40
+    mosi_pin: GPIO39
+    # no miso needed
+
+
+binary_sensor:
+  # Front button
+  - platform: gpio
+    pin:
+      number: GPIO11
+      inverted: true
+    name: "Front Button"
+    id: button_front
+
+  # Right Side button - reboot trigger
+  - platform: gpio
+    pin:
+      number: GPIO12
+      inverted: true
+    name: "Side Button"
+    id: button_side
+  #  on_press:
+  #    then:
+  #      - switch.turn_on: reboot_switch
+
+
+# LCD Backlight
+output:
+  - platform: ledc
+    pin: GPIO38
+    id: bl_pwm
+    frequency: 1000Hz     # or try 5000Hz if still dim
+
+
+light:
+  - platform: monochromatic
+    output: bl_pwm
+    id: lcd_backlight
+    restore_mode: ALWAYS_ON
+    default_transition_length: 0s
+
+font:
+  - file: "gfonts://Roboto"
+    id: roboto_16
+    size: 16
+
+  - file: "gfonts://Roboto"
+    id: roboto_24
+    size: 24
+
+  - file: "gfonts://Roboto"
+    id: roboto_36
+    size: 36
+
+color:
+  - id: rgb_black
+    red: 0%
+    green: 0%
+    blue: 0%
+  - id: rgb_white
+    red: 100%
+    green: 100%
+    blue: 100%
+  - id: rgb_blue
+    red: 0%
+    green: 0%
+    blue: 100%
+  - id: rgb_red
+    red: 100%
+    green: 0%
+    blue: 0%
+  - id: rgb_green
+    red: 0%
+    green: 100%
+    blue: 0%
+  - id: rgb_yellow
+    red: 100%
+    green: 100%
+    blue: 0%
+  - id: rgb_orange
+    red: 100%
+    green: 50%
+    blue: 0%
+
+
+sensor:
+  - platform: uptime
+    name: "Uptime"  
+
+
+display:
+  - platform: mipi_spi
+    id: lcd_display
+    update_interval: never
+    model: ST7789P
+    spi_id: lcd_spi
+    cs_pin: GPIO41
+    dc_pin: GPIO45
+    reset_pin: GPIO21
+    init_sequence: []
+    invert_colors: true
+
+    # portrait
+    dimensions:
+      width: 135
+      height: 240
+      offset_width: 52
+      offset_height: 40
+
+    # landscape
+    #transform:
+    #  swap_xy: true
+    #  mirror_x: true
+    #  mirror_y: false
+    #dimensions:
+    #  width: 240
+    #  height: 135
+    #  offset_width: 40
+    #  offset_height: 53
+
+    lambda: |-
+      // Turn the whole display on
+      it.fill(rgb_black);
+      it.rectangle(0, 0, 240, 135, rgb_blue);
+      if (id(ha_time).now().is_valid()) {
+        it.strftime(5, 0, id(roboto_16), Color(rgb_yellow), "%d.%m.%Y %H:%M:%S %Z", id(ha_time).now()); 
+      }
+
+
+interval:
+  - interval: 10s
+    id: refresh_pm1
+    then:
+      - lambda: |
+          auto pm1 = id(m5pm1_id);
+          pm1->trigger_update();
+          ESP_LOGD("log_pm1", "Battery: %.1fV", id(m5pm1_battery_volt).state);
+
